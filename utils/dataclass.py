@@ -18,21 +18,6 @@ def from_dict(cls: dataclass, dictionary: dict):
 
 
 @dataclass
-class Killmail:
-    attackers: dict
-    killmail_id: int
-    killmail_time: str
-    moon_id: int
-    solar_system_id: int
-    victim: dict
-    war_id: int
-
-    def __post_init__(self):
-        self.attackers = [from_dict(cls=Attacker, dictionary=attacker) for attacker in self.attackers]
-        self.victim = from_dict(cls=Victim, dictionary=self.victim)
-
-
-@dataclass
 class Attacker:
     alliance_id: int
     character_id: int
@@ -58,6 +43,21 @@ class Victim:
 
     def __post_init__(self):
         self.items = [from_dict(cls=Item, dictionary=item) for item in self.items]
+
+
+@dataclass
+class Killmail:
+    attackers: list
+    killmail_id: int
+    killmail_time: str
+    moon_id: int
+    solar_system_id: int
+    victim: Victim or dict
+    war_id: int
+
+    def __post_init__(self):
+        self.attackers = [from_dict(cls=Attacker, dictionary=attacker) for attacker in self.attackers]
+        self.victim = from_dict(cls=Victim, dictionary=self.victim)
 
 
 @dataclass
@@ -96,7 +96,7 @@ class Guild:
     channel: int
     staging: dict
     lists: dict
-    filters: dict
+    filters: list
     reported_killmail_id: dict
     active_systems: dict
     ignored_systems: dict

@@ -135,3 +135,26 @@ async def is_where(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
     :return: True if the solar system matches with the systems in the list referenced in the filter.
     """
     return killmail.solar_system_id in guild.lists.get(filt.where)
+
+
+@timeit
+@logger
+async def is_in_range(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
+    """Check if the solar system is in range of the staging system.
+
+    :param killmail: The killmail.
+    :param guild: The guild.
+    :param filt: The filter.
+    :return: True if the solar system is in range of the staging system.
+    """
+    params = {'datasource': 'tranquility', 'language': 'en-us'}
+    staging_system = await fetch(session=session,
+                                 url=f'https://esi.evetech.net/latest/universe/systems/{guild.staging.get("id")}/',
+                                 params=params)
+    kill_system = await fetch(session=session,
+                              url=f'https://esi.evetech.net/latest/universe/systems/{killmail.solar_system_id}/',
+                              params=params)
+    staging_position = from_dict(cls=Position, dictionary=staging_system.get('position'))
+    kill_position = from_dict(cls=Position, dictionary=kill_system.get('position'))
+    distance = staging_position.distance_in_light_years(kill_position)
+    return distance >= filt.range

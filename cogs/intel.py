@@ -102,6 +102,19 @@ async def add_reported_killmail_id(killmail: Killmail, guild: Guild):
     await save(config)
 
 
+@timeit
+@logger
+async def is_ping(filt: Filter) -> bool:
+    """Check if the kill should be pinged (@here)
+
+    :param filt: The filer
+    :return: True if the kill should be pinged (@here)
+    """
+    return filt.ping == 1
+
+
+@timeit
+@logger
 async def is_where(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
     """Check if the solar system matches with the systems in the list referenced in the filter.
 

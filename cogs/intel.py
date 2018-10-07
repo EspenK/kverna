@@ -187,7 +187,7 @@ async def is_in_range(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
     staging_position = from_dict(cls=Position, dictionary=staging_system.get('position'))
     kill_position = from_dict(cls=Position, dictionary=kill_system.get('position'))
     distance = staging_position.distance_in_light_years(kill_position)
-    return distance >= filt.range
+    return distance <= filt.range
 
 
 @logger

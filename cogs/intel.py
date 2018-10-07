@@ -84,6 +84,36 @@ async def process_filter(zkb: Zkb, killmail: Killmail, guild: Guild, filt: Filte
     matching = []
     await asyncio.sleep(0.0001)
 
+    if filt.ping is not None:
+        ping = await is_ping(filt)
+
+    if filt.where is not None:
+        matching.append(await is_where(killmail=killmail, guild=guild, filt=filt))
+
+    if filt.isk_value is not None:
+        matching.append(await is_expensive(zkb=zkb, filt=filt))
+
+    if filt.range is not None:
+        matching.append(await is_in_range(killmail=killmail, guild=guild, filt=filt))
+
+    if filt.action == 'use':
+        if filt.what is not None:
+            matching.append(await is_what_attacker(killmail=killmail, guild=guild, filt=filt))
+
+    elif filt.action == 'kill':
+        if filt.what is not None:
+            matching.append(await is_what_victim(killmail=killmail, guild=guild, filt=filt))
+
+    else:
+        log.error(f'{guild.name} {filt.name} missing action')
+
+    # TODO: Update the message with embeds and more info
+    if False not in matching:
+        channel = bot.get_channel(guild.channel)
+        await channel.send(
+            f'https://zkillboard.com/kill/{killmail.killmail_id}/ '
+            f'matched {filt.name}')
+
 
 @timeit
 @logger

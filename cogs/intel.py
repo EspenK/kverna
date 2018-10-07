@@ -100,3 +100,14 @@ async def add_reported_killmail_id(killmail: Killmail, guild: Guild):
     guild.reported_killmail_id[killmail.killmail_id] = time.strftime(datetime_format)
     config.guilds.append(guild)
     await save(config)
+
+
+async def is_where(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
+    """Check if the solar system matches with the systems in the list referenced in the filter.
+
+    :param killmail: The killmail
+    :param guild: The guild
+    :param filt: The filter
+    :return: True if the solar system matches with the systems in the list referenced in the filter.
+    """
+    return killmail.solar_system_id in guild.lists.get(filt.where)

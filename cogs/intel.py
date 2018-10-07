@@ -75,4 +75,28 @@ async def process_killmail(zkb: Zkb, killmail: Killmail, bot: commands.Bot):
         if guild.reported_killmail_id.get(killmail.killmail_id) is not None:
             return
         for filt in guild.filters:
+            asyncio.create_task(process_filter(zkb=zkb, killmail=killmail, guild=guild, filt=filt, bot=bot))
             await asyncio.sleep(0.0001)
+
+
+@timeit
+@logger
+async def process_filter(zkb: Zkb, killmail: Killmail, guild: Guild, filt: Filter, bot: commands.Bot):
+    matching = []
+    await asyncio.sleep(0.0001)
+
+
+@timeit
+@logger
+async def add_reported_killmail_id(killmail: Killmail, guild: Guild):
+    """Add reported kills to the guilds reported kills list.
+
+    :param killmail: The killmail.
+    :param guild: The guild.
+    """
+    datetime_format = '%Y-%m-%dT%H:%M:%SZ'
+    time = datetime.datetime.utcnow()
+    config.guilds.remove(guild)
+    guild.reported_killmail_id[killmail.killmail_id] = time.strftime(datetime_format)
+    config.guilds.append(guild)
+    await save(config)

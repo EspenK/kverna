@@ -42,14 +42,14 @@ async def listen(bot: commands.Bot):
         log.debug('listening')
         zkb_data = await fetch(session=session, url=url)
 
-        if zkb_data is not None and zkb_data.get('package') is not None:
+        if type(zkb_data) is dict and zkb_data is not None and zkb_data.get('package') is not None:
             zkb = from_dict(cls=Zkb, dictionary=zkb_data.get('package').get('zkb'))
 
             await asyncio.sleep(0.0001)
 
             killmail_data = await fetch(session=session, url=zkb.href)
 
-            if killmail_data is not None:
+            if type(killmail_data) is dict and killmail_data is not None:
                 killmail = from_dict(cls=Killmail, dictionary=killmail_data)
 
                 await asyncio.sleep(0.0001)

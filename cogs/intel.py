@@ -81,6 +81,9 @@ async def process_killmail(zkb: Zkb, killmail: Killmail, bot: commands.Bot):
 @timeit
 @logger
 async def process_filter(zkb: Zkb, killmail: Killmail, guild: Guild, filt: Filter, bot: commands.Bot):
+    if killmail.killmail_id in guild.reported_killmail_id:
+        return
+
     matching = []
     await asyncio.sleep(0.0001)
 
@@ -109,10 +112,12 @@ async def process_filter(zkb: Zkb, killmail: Killmail, guild: Guild, filt: Filte
 
     # TODO: Update the message with embeds and more info
     if False not in matching:
-        channel = bot.get_channel(guild.channel)
-        await channel.send(
-            f'https://zkillboard.com/kill/{killmail.killmail_id}/ '
-            f'matched {filt.name}')
+        if killmail.killmail_id not in guild.reported_killmail_id:
+            await add_reported_killmail_id(killmail=killmail, guild=guild)
+            channel = bot.get_channel(guild.channel)
+            await channel.send(
+                f'https://zkillboard.com/kill/{killmail.killmail_id}/ '
+                f'matched {filt.name}')
 
 
 @timeit

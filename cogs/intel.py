@@ -68,7 +68,7 @@ async def process_killmail(zkb: Zkb, killmail: Killmail, bot: commands.Bot):
     :param zkb: The zKillboard data for this killmail.
     :param killmail: The killmail.
     :param bot: The discord bot.
-    :return: None
+    :return: None.
     """
     log.info(f'processing killmail {killmail.killmail_id}')
     for guild in config.guilds:
@@ -107,10 +107,22 @@ async def add_reported_killmail_id(killmail: Killmail, guild: Guild):
 async def is_ping(filt: Filter) -> bool:
     """Check if the kill should be pinged (@here)
 
-    :param filt: The filer
-    :return: True if the kill should be pinged (@here)
+    :param filt: The filer.
+    :return: True if the kill should be pinged (@here).
     """
     return filt.ping == 1
+
+
+@timeit
+@logger
+async def is_expensive(zkb: Zkb, filt: Filter) -> bool:
+    """Check if the total value is greater than or equal to the value set in the filter.
+
+    :param zkb: The killmail
+    :param filt: The filter
+    :return: True if the total value is greater than or equal to the value set in the filter
+    """
+    return zkb.totalValue >= filt.isk_value
 
 
 @timeit
@@ -118,9 +130,9 @@ async def is_ping(filt: Filter) -> bool:
 async def is_where(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
     """Check if the solar system matches with the systems in the list referenced in the filter.
 
-    :param killmail: The killmail
-    :param guild: The guild
-    :param filt: The filter
+    :param killmail: The killmail.
+    :param guild: The guild.
+    :param filt: The filter.
     :return: True if the solar system matches with the systems in the list referenced in the filter.
     """
     return killmail.solar_system_id in guild.lists.get(filt.where)

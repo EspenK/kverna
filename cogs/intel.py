@@ -195,8 +195,8 @@ async def is_in_range(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
     return distance <= filt.range
 
 
-@logger
 @timeit
+@logger
 async def is_what_victim(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
     """Check if the victim ship is in the filters 'what' list.
 
@@ -208,8 +208,8 @@ async def is_what_victim(killmail: Killmail, guild: Guild, filt: Filter) -> bool
     return killmail.victim.ship_type_id in guild.lists.get(filt.what)
 
 
-@logger
 @timeit
+@logger
 async def is_what_attacker(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
     """Check if an attackers ship is in the filters 'what' list.
 

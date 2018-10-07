@@ -55,6 +55,24 @@ async def listen(bot: commands.Bot):
 
                     await asyncio.sleep(0.0001)
 
-                    await asyncio.sleep(2)
+                    asyncio.create_task(process_killmail(zkb=zkb, killmail=killmail, bot=bot))
             else:
                 await asyncio.sleep(2)
+
+
+@timeit
+@logger
+async def process_killmail(zkb: Zkb, killmail: Killmail, bot: commands.Bot):
+    """Process the kill by processing each filter in each guild and look for any matching attributes.
+
+    :param zkb: The zKillboard data for this killmail.
+    :param killmail: The killmail.
+    :param bot: The discord bot.
+    :return: None
+    """
+    log.info(f'processing killmail {killmail.killmail_id}')
+    for guild in config.guilds:
+        if guild.reported_killmail_id.get(killmail.killmail_id) is not None:
+            return
+        for filt in guild.filters:
+            await asyncio.sleep(0.0001)

@@ -220,3 +220,17 @@ async def is_what_attacker(killmail: Killmail, guild: Guild, filt: Filter) -> bo
     """
     matching = [attacker.ship_type_id in guild.lists.get(filt.what) for attacker in killmail.attackers]
     return True in matching
+
+
+@timeit
+@logger
+async def has_items(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
+    """Check if an item is in the filters 'items' list.
+
+    :param killmail: The killmail.
+    :param guild: The guild.
+    :param filt: The filter.
+    :return: True if an item is in the filters 'items' list.
+    """
+    matching = [item.item_type_id in guild.lists.get(filt.items) for item in killmail.victim.items]
+    return True in matching

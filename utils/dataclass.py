@@ -116,6 +116,7 @@ class Filter:
     range: int
     ping: bool
     isk_value: int
+    items: str
 
 
 @dataclass

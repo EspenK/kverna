@@ -55,9 +55,9 @@ class OwnerCog:
                 self.bot.unload_extension(extension)
                 self.bot.load_extension(extension)
         except (ModuleNotFoundError, discord.errors.ClientException) as e:
-            await ctx.send(f'Failed to reload {extension}: {e}')
+            await ctx.send(f'Failed to {command} {extension}: {e}')
         else:
-            await ctx.send(f'{extension} reloaded successfully')
+            await ctx.send(f'{extension} {command}ed successfully')
 
 
 def setup(bot: commands.Bot):

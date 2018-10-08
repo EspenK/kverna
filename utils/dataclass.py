@@ -92,7 +92,7 @@ class Config:
 
 @dataclass
 class Guild:
-    name: str
+    id: int
     channel: int
     staging: dict
     lists: dict

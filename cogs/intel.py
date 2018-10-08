@@ -108,7 +108,7 @@ async def process_filter(zkb: Zkb, killmail: Killmail, guild: Guild, filt: Filte
             matching.append(await is_what_victim(killmail=killmail, guild=guild, filt=filt))
 
     else:
-        log.error(f'{guild.name} {filt.name} missing action')
+        log.error(f'{guild.id} {filt.name} missing action')
 
     # TODO: Update the message with embeds and more info
     if False not in matching:

@@ -37,6 +37,22 @@ class IntelCog:
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+    @commands.group(name='filter', aliases=['f'])
+    @commands.guild_only()
+    async def filt(self, ctx):
+        """Command group for all filter commands."""
+        pass
+
+    @filt.command(name='list', aliases=['l', 's', 'show'])
+    async def filt_list(self, ctx):
+        """List all filters for this server."""
+        for guild in config.guilds:
+            if guild.id == ctx.guild.id:
+                msg = ''
+                for filt in guild.filters:
+                    msg += '\n' + str(filt)
+                await ctx.send(msg)
+
 
 def setup(bot: commands.Bot):
     bot.add_cog(IntelCog(bot))

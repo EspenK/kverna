@@ -13,7 +13,26 @@ def from_dict(cls: dataclass, dictionary: dict):
     init_kwargs = {}
     for _field in fields(cls):
         field_value = dictionary.get(_field.name)
+        if type(field_value) is str:
+            if field_value.lower() in ['none', 'null']:
+                field_value = None
+        if field_value is not None:
+            if _field.type is int:
+                field_value = int(field_value)
+            elif _field.type is float:
+                field_value = float(field_value)
+            elif _field.type is bool and type(field_value) is not bool:
+                if field_value.lower() == 'false' or field_value == 0:
+                    field_value = False
+                elif field_value.lower() == 'true' or field_value == 1:
+                    field_value = False
+
         init_kwargs[_field.name] = field_value
+
+    # ensure filters have an action
+    if cls is Filter and init_kwargs.get('action') not in ['kill', 'use']:
+        init_kwargs['action'] = 'kill'
+
     return cls(**init_kwargs)
 
 
@@ -113,7 +132,7 @@ class Filter:
     where: str
     who: str
     who_ignore: str
-    range: int
+    range: float
     ping: bool
     isk_value: int
     items: str

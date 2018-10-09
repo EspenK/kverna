@@ -53,6 +53,36 @@ class IntelCog:
                     msg += '\n' + str(filt)
                 await ctx.send(msg)
 
+    @filt.command(name='add', aliases=['edit', 'update', 'a', 'e'])
+    async def filt_add(self, ctx, *args):
+        """Add or update a filter.
+
+        A filter needs a name.
+        All values are assigned by writing key=value. To see all possible keys use the filter list command.
+        """
+        kwargs = await parse_arguments(*args)
+        new_filter = None
+        if kwargs.get('name') is None:
+            await ctx.send('A filter must have a name. Try again')
+            return
+
+        for guild in config.guilds:
+            if guild.id == ctx.guild.id:
+                for filt in guild.filters:
+                    if filt.name == kwargs.get('name'):
+                        new_filter_dict = merge_dict(original=asdict(filt), additional=kwargs)
+                        new_filter = from_dict(cls=Filter, dictionary=new_filter_dict)
+                        guild.filters.remove(filt)
+
+            if new_filter is None:
+                new_filter = from_dict(cls=Filter, dictionary=kwargs)
+
+            config.guilds.remove(guild)
+            guild.filters.append(new_filter)
+            config.guilds.append(guild)
+            await save(config)
+            await ctx.send(f'{new_filter}')
+
 
 def setup(bot: commands.Bot):
     bot.add_cog(IntelCog(bot))

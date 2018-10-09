@@ -83,6 +83,24 @@ class IntelCog:
             await save(config)
             await ctx.send(f'{new_filter}')
 
+    @filt.command(name='remove', aliases=['delete', 'del', 'r'])
+    async def filt_remove(self, ctx, name):
+        """Remove a filter.
+
+        :param name: The name of the filer to remove.
+        """
+        for guild in config.guilds:
+            if guild.id == ctx.guild.id:
+                for filt in guild.filters:
+                    if filt.name == name:
+                        config.guilds.remove(guild)
+                        guild.filters.remove(filt)
+                        config.guilds.append(guild)
+                        await save(config)
+                        await ctx.send(f'Filter {name} removed.')
+                        return
+        await ctx.send(f'Filter {name} was not found.')
+
 
 def setup(bot: commands.Bot):
     bot.add_cog(IntelCog(bot))

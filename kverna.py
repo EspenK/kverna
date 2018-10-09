@@ -17,7 +17,8 @@ bot = commands.Bot(command_prefix=config['default']['command_prefix'],
                    description=config['default']['description'])
 
 
-initial_extensions = ['cogs.owner']
+initial_extensions = ['cogs.owner',
+                      'cogs.intel_commands']
 
 
 if __name__ == '__main__':

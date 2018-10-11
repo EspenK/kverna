@@ -2,17 +2,19 @@ import logging
 import aiohttp
 from utils.decorator import logger
 from utils.decorator import timeit
+from cogs import session
 
 
 log = logging.getLogger("discord")
 
+esi_params = {'datasource': 'tranquility', 'language': 'en-us'}
+
 
 @timeit
 @logger
-async def fetch(session: aiohttp.ClientSession, url: str, params: dict = None, method: str = 'GET') -> [dict, str, None]:
+async def fetch(url: str, params: dict = None, method: str = 'GET') -> [dict, str, None]:
     """Make a request with the provided method, url and parameters and return the content
 
-    :param session: The session object.
     :param url: The url to request data from.
     :param params: A dictionary of key value pairs to be sent as parameters.
     :param method: The HTTP method to use for the request.
@@ -23,3 +25,46 @@ async def fetch(session: aiohttp.ClientSession, url: str, params: dict = None, m
             return await response.json()
         else:
             return await response.text()
+
+
+@timeit
+@logger
+async def esi_search(categories: str, search: str) -> list:
+    url = 'https://esi.evetech.net/latest/search/'
+    params = dict(esi_params)
+    params['categories'] = categories
+    params['search'] = search
+    response = await fetch(url=url, params=params)
+    return response.get(categories)
+
+
+@timeit
+@logger
+async def esi_regions(region_id: int) -> dict:
+    url = f'https://esi.evetech.net/latest/universe/regions/{region_id}/'
+    response = await fetch(url=url, params=esi_params)
+    return response
+
+
+@timeit
+@logger
+async def esi_constellations(constellation_id: int) -> dict:
+    url = f'https://esi.evetech.net/latest/universe/constellations/{constellation_id}/'
+    response = await fetch(url=url, params=esi_params)
+    return response
+
+
+@timeit
+@logger
+async def esi_systems(system_id: int) -> dict:
+    url = f'https://esi.evetech.net/latest/universe/systems/{system_id}/'
+    response = await fetch(url=url, params=esi_params)
+    return response
+
+
+@timeit
+@logger
+async def esi_types(type_id: int) -> dict:
+    url = f'https://esi.evetech.net/latest/universe/systems/{type_id}/'
+    response = await fetch(url=url, params=esi_params)
+    return response

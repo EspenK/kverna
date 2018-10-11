@@ -17,7 +17,7 @@ class Info:
     @commands.command(name='info')
     async def info(self, ctx):
         """Provide some simple information about the bot."""
-        guild: Guild = discord.utils.find(lambda m: m.id == ctx.guild.id, config.guilds)
+        guild: Guild = discord.utils.find(lambda g: g.id == ctx.guild.id, config.guilds)
         embed = discord.Embed(title='kverna',
                               description=bot_config['default']['long_description'],
                               color=discord.Color.blue())

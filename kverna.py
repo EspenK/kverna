@@ -4,8 +4,8 @@ import configparser
 import logging.config
 from cogs import intel
 
-config = configparser.ConfigParser()
-config.read('config/bot.ini')
+bot_config = configparser.ConfigParser()
+bot_config.read('config/bot.ini')
 
 secret = configparser.ConfigParser()
 secret.read('config/secret.ini')
@@ -13,12 +13,13 @@ secret.read('config/secret.ini')
 logging.config.fileConfig('config/log.ini')
 log = logging.getLogger('discord')
 
-bot = commands.Bot(command_prefix=config['default']['command_prefix'],
-                   description=config['default']['description'])
+bot = commands.Bot(command_prefix=bot_config['default']['command_prefix'],
+                   description=bot_config['default']['description'])
 
 
 initial_extensions = ['cogs.owner',
-                      'cogs.intel_commands']
+                      'cogs.intel_commands',
+                      'cogs.info']
 
 
 if __name__ == '__main__':

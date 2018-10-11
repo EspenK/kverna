@@ -20,7 +20,6 @@ from utils.dataclass import Position
 from utils.file import load
 from utils.file import save
 from . import config
-from . import session
 
 
 log = logging.getLogger('discord')
@@ -40,14 +39,14 @@ async def listen(bot: commands.Bot):
 
     while True:  # TODO: Check connection status
         log.debug('listening')
-        zkb_data = await fetch(session=session, url=url)
+        zkb_data = await fetch(url=url)
 
         if type(zkb_data) is dict and zkb_data is not None and zkb_data.get('package') is not None:
             zkb = from_dict(cls=Zkb, dictionary=zkb_data.get('package').get('zkb'))
 
             await asyncio.sleep(0.0001)
 
-            killmail_data = await fetch(session=session, url=zkb.href)
+            killmail_data = await fetch(url=zkb.href)
 
             if type(killmail_data) is dict and killmail_data is not None:
                 killmail = from_dict(cls=Killmail, dictionary=killmail_data)
@@ -183,11 +182,9 @@ async def is_in_range(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
     :return: True if the solar system is in range of the staging system.
     """
     params = {'datasource': 'tranquility', 'language': 'en-us'}
-    staging_system = await fetch(session=session,
-                                 url=f'https://esi.evetech.net/latest/universe/systems/{guild.staging.get("id")}/',
+    staging_system = await fetch(url=f'https://esi.evetech.net/latest/universe/systems/{guild.staging.get("id")}/',
                                  params=params)
-    kill_system = await fetch(session=session,
-                              url=f'https://esi.evetech.net/latest/universe/systems/{killmail.solar_system_id}/',
+    kill_system = await fetch(url=f'https://esi.evetech.net/latest/universe/systems/{killmail.solar_system_id}/',
                               params=params)
     staging_position = from_dict(cls=Position, dictionary=staging_system.get('position'))
     kill_position = from_dict(cls=Position, dictionary=kill_system.get('position'))

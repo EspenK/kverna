@@ -1,3 +1,4 @@
+import discord
 from discord.ext import commands
 import logging
 import asyncio
@@ -46,12 +47,11 @@ class IntelCog:
     @filt.command(name='list', aliases=['l', 's', 'show'])
     async def filt_list(self, ctx):
         """List all filters for this server."""
-        for guild in config.guilds:
-            if guild.id == ctx.guild.id:
-                msg = ''
-                for filt in guild.filters:
-                    msg += '\n' + str(filt)
-                await ctx.send(msg)
+        guild: Guild = discord.utils.find(lambda g: g.id == ctx.guild.id, config.guilds)
+        msg = ''
+        for filt in guild.filters:
+            msg += '\n' + str(filt)
+        await ctx.send(msg)
 
     @filt.command(name='add', aliases=['edit', 'update', 'a', 'e'])
     async def filt_add(self, ctx, *args):
@@ -66,22 +66,25 @@ class IntelCog:
             await ctx.send('A filter must have a name. Try again')
             return
 
-        for guild in config.guilds:
-            if guild.id == ctx.guild.id:
-                for filt in guild.filters:
-                    if filt.name == kwargs.get('name'):
-                        new_filter_dict = merge_dict(original=asdict(filt), additional=kwargs)
-                        new_filter = from_dict(cls=Filter, dictionary=new_filter_dict)
-                        guild.filters.remove(filt)
+        guild: Guild = discord.utils.find(lambda g: g.id == ctx.guild.id, config.guilds)
+        filt: Filter = discord.utils.find(lambda f: f.name == kwargs.get('name'), guild.filters)
 
-            if new_filter is None:
-                new_filter = from_dict(cls=Filter, dictionary=kwargs)
+        log.info(guild)
+        log.info(filt)
 
-            config.guilds.remove(guild)
-            guild.filters.append(new_filter)
-            config.guilds.append(guild)
-            await save(config)
-            await ctx.send(f'{new_filter}')
+        if filt is not None:
+            new_filter_dict = merge_dict(original=asdict(filt), additional=kwargs)
+            new_filter = from_dict(cls=Filter, dictionary=new_filter_dict)
+            guild.filters.remove(filt)
+
+        if new_filter is None:
+            new_filter = from_dict(cls=Filter, dictionary=kwargs)
+
+        config.guilds.remove(guild)
+        guild.filters.append(new_filter)
+        config.guilds.append(guild)
+        await save(config)
+        await ctx.send(f'{new_filter}')
 
     @filt.command(name='remove', aliases=['delete', 'del', 'r'])
     async def filt_remove(self, ctx, name):
@@ -89,16 +92,16 @@ class IntelCog:
 
         :param name: The name of the filer to remove.
         """
-        for guild in config.guilds:
-            if guild.id == ctx.guild.id:
-                for filt in guild.filters:
-                    if filt.name == name:
-                        config.guilds.remove(guild)
-                        guild.filters.remove(filt)
-                        config.guilds.append(guild)
-                        await save(config)
-                        await ctx.send(f'Filter {name} removed.')
-                        return
+        guild: Guild = discord.utils.find(lambda g: g.id == ctx.guild.id, config.guilds)
+        filt: Filter = discord.utils.find(lambda f: f.name == name, guild.filters)
+        if filt is not None:
+            config.guilds.remove(guild)
+            guild.filters.remove(filt)
+            config.guilds.append(guild)
+            await save(config)
+            await ctx.send(f'Filter {name} removed.')
+            return
+
         await ctx.send(f'Filter {name} was not found.')
 
 

@@ -10,6 +10,8 @@ from dataclasses import fields
 from utils.decorator import logger
 from utils.decorator import timeit
 from utils.fetch import fetch
+from utils.fetch import esi_ids
+from utils.fetch import esi_names
 from utils.dataclass import from_dict
 from utils.dataclass import merge_dict
 from utils.dataclass import Killmail
@@ -23,7 +25,8 @@ from utils.dataclass import Filter
 from utils.dataclass import Position
 from utils.file import load
 from utils.file import save
-from utils.command import parse_arguments
+from utils.command import args_to_kwargs
+from utils.command import args_to_list
 from . import config
 from . import session
 
@@ -53,14 +56,14 @@ class IntelCog:
             msg += '\n' + str(filt)
         await ctx.send(msg)
 
-    @filt.command(name='add', aliases=['edit', 'update', 'a', 'e'])
+    @filt.command(name='add', aliases=['edit', 'update', 'u', 'a', 'e'])
     async def filt_add(self, ctx, *args):
         """Add or update a filter.
 
         A filter needs a name.
         All values are assigned by writing key=value. To see all possible keys use the filter list command.
         """
-        kwargs = await parse_arguments(*args)
+        kwargs = await args_to_kwargs(*args)
         new_filter = None
         if kwargs.get('name') is None:
             await ctx.send('A filter must have a name. Try again')
@@ -103,6 +106,14 @@ class IntelCog:
             return
 
         await ctx.send(f'Filter {name} was not found.')
+
+    @commands.group(name='list', aliases=['l'])
+    async def _list(self, ctx):
+        pass
+
+    @_list.command(name='add', aliases=['edit', 'update', 'u', 'a', 'e'])
+    async def list_add(self, ctx, name: str, *args):
+        pass
 
 
 def setup(bot: commands.Bot):

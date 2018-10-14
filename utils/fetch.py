@@ -12,7 +12,7 @@ esi_params = {'datasource': 'tranquility', 'language': 'en-us'}
 
 @timeit
 @logger
-async def fetch(url: str, params: dict = None, method: str = 'GET') -> [dict, str, None]:
+async def fetch(url: str, params: dict = None, data = None, method: str = 'GET') -> [dict, str, None]:
     """Make a request with the provided method, url and parameters and return the content
 
     :param url: The url to request data from.
@@ -20,7 +20,7 @@ async def fetch(url: str, params: dict = None, method: str = 'GET') -> [dict, st
     :param method: The HTTP method to use for the request.
     :return: The contents of the response.
     """
-    async with session.request(method=method, url=url, params=params) as response:
+    async with session.request(method=method, url=url, params=params, data=data) as response:
         if response.content_type == 'application/json':
             return await response.json()
         else:
@@ -66,5 +66,23 @@ async def esi_systems(system_id: int) -> dict:
 @logger
 async def esi_types(type_id: int) -> dict:
     url = f'https://esi.evetech.net/latest/universe/systems/{type_id}/'
-    response = await fetch(url=url, params=esi_params)
+    response = await fetch(url=url, params=esi_params, method='POST')
+    return response
+
+
+@timeit
+@logger
+async def esi_ids(names: list) -> dict:
+    url = f'https://esi.evetech.net/latest/universe/ids/'
+    data = str(names).replace('\'', '"')
+    response = await fetch(url=url, params=esi_params, data=data, method='POST')
+    return response
+
+
+@timeit
+@logger
+async def esi_names(ids: list) -> dict:
+    url = f'https://esi.evetech.net/latest/universe/names/'
+    data = str(ids).replace('\'', '"')
+    response = await fetch(url=url, params=esi_params, data=data, method='POST')
     return response

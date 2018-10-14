@@ -11,7 +11,6 @@ from utils.decorator import logger
 from utils.decorator import timeit
 from utils.fetch import fetch
 from utils.dataclass import from_dict
-from utils.dataclass import merge_dict
 from utils.dataclass import Killmail
 from utils.dataclass import Attacker
 from utils.dataclass import Victim
@@ -63,17 +62,14 @@ class IntelCog:
         kwargs = await parse_arguments(*args)
         new_filter = None
         if kwargs.get('name') is None:
-            await ctx.send('A filter must have a name. Try again')
+            await ctx.send('A filter must have a name.')
             return
 
         guild: Guild = discord.utils.find(lambda g: g.id == ctx.guild.id, config.guilds)
         filt: Filter = discord.utils.find(lambda f: f.name == kwargs.get('name'), guild.filters)
 
-        log.info(guild)
-        log.info(filt)
-
         if filt is not None:
-            new_filter_dict = merge_dict(original=asdict(filt), additional=kwargs)
+            new_filter_dict = {**asdict(filt), **kwargs}
             new_filter = from_dict(cls=Filter, dictionary=new_filter_dict)
             guild.filters.remove(filt)
 

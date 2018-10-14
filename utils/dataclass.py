@@ -36,19 +36,6 @@ def from_dict(cls: dataclass, dictionary: dict):
     return cls(**init_kwargs)
 
 
-def merge_dict(original: dict, additional: dict) -> dict:
-    """Merge two dictionaries. Fill in the original dictionary with additional and updated values from addition dictionary.
-
-    :param original: Original dictionary.
-    :param additional: Additional dictionary with extra keys and values to put into the original dictionary.
-    :return: The original dictionary with additional or updated keys and values.
-    """
-    for key, value in additional.items():
-        if key is not None and value is not None:
-            original[key] = value
-    return original
-
-
 @dataclass
 class Attacker:
     alliance_id: int

@@ -109,7 +109,24 @@ class IntelCog:
 
     @_list.command(name='add', aliases=['edit', 'update', 'u', 'a', 'e'])
     async def list_add(self, ctx, name: str, *args):
-        pass
+        names = await args_to_list(*args)
+        response = await esi_ids(names)
+        categories = ['agents', 'alliances', 'characters', 'constellations',
+                      'corporations', 'factions', 'inventory_types', 'regions',
+                      'stations', 'systems']
+        ids = []
+        response_names = []
+        for category in categories:
+            if response.get(category):
+                for element in response.get(category):
+                    ids.append(element.get('id'))
+                    response_names.append(element.get('name'))
+        guild: Guild = discord.utils.find(lambda g: g.id == ctx.guild.id, config.guilds)
+        config.guilds.remove(guild)
+        guild.lists[name] = ids
+        config.guilds.append(guild)
+
+        await ctx.send(f'List {name} added {response_names}')
 
 
 def setup(bot: commands.Bot):

@@ -10,7 +10,7 @@ log = logging.getLogger("discord")
 
 @timeit
 @logger
-async def parse_arguments(*args) -> dict:
+async def args_to_kwargs(*args) -> dict:
     """Take arguments and turn them into keyword arguments. Split arguments on the '=' character.
 
     :param args: The arguments to parse.
@@ -24,3 +24,11 @@ async def parse_arguments(*args) -> dict:
             split_arg = arg.split('=')
             kwargs[split_arg[0]] = split_arg[1]
     return kwargs
+
+
+@timeit
+@logger
+async def args_to_list(*args) -> list:
+    forbidden_characters = '[(){},\'"]'
+    args = [re.sub(forbidden_characters, '', arg) for arg in args]
+    return list(args)

@@ -3,6 +3,7 @@ import logging
 import asyncio
 import aiohttp
 import datetime
+import itertools
 
 from utils.decorator import logger
 from utils.decorator import timeit
@@ -102,9 +103,15 @@ async def process_filter(zkb: Zkb, killmail: Killmail, guild: Guild, filt: Filte
         if filt.what is not None:
             matching.append(await is_what_attacker(killmail=killmail, guild=guild, filt=filt))
 
+        if filt.who:
+            matching.append(await is_what_attacker(killmail=killmail, guild=guild, filt=filt))
+
     elif filt.action == 'kill':
         if filt.what is not None:
             matching.append(await is_what_victim(killmail=killmail, guild=guild, filt=filt))
+
+        if filt.who:
+            matching.append(await is_who_victim(killmail=killmail, guild=guild, filt=filt))
 
     else:
         log.error(f'{guild.id} {filt.name} missing action')
@@ -217,6 +224,42 @@ async def is_what_attacker(killmail: Killmail, guild: Guild, filt: Filter) -> bo
     """
     matching = [attacker.ship_type_id in guild.lists.get(filt.what) for attacker in killmail.attackers]
     return True in matching
+
+
+@timeit
+@logger
+async def is_who_victim(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
+    """Check if the victim is in the filters 'who' list.
+
+    :param killmail: The killmail.
+    :param guild: The guild.
+    :param filt: The filter.
+    :return: True if the victim is in the filters 'who' list.
+    """
+    ids = {killmail.victim.alliance_id,
+           killmail.victim.corporation_id,
+           killmail.victim.character_id,
+           killmail.victim.faction_id}
+    return bool(ids.intersection(guild.lists.get(filt.who)))
+
+
+@timeit
+@logger
+async def is_who_attacker(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
+    """Check if an attacker is in the filters 'who' list.
+
+    :param killmail: The killmail.
+    :param guild: The guild.
+    :param filt: The filter.
+    :return: True if an attacker is in the filters 'who' list.
+    """
+    ids = set()
+    for attacker in killmail.attackers:
+        ids.update([attacker.alliance_id,
+                    attacker.corporation_id,
+                    attacker.character_id,
+                    attacker.faction_id])
+    return bool(ids.intersection(guild.lists.get(filt.who)))
 
 
 @timeit

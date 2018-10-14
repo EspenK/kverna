@@ -33,6 +33,10 @@ def from_dict(cls: dataclass, dictionary: dict):
     if cls is Filter and init_kwargs.get('action') not in ['kill', 'use']:
         init_kwargs['action'] = 'kill'
 
+    # ensure filters are enabled if not specified
+    if cls is Filter and init_kwargs.get('enabled') not in [True, False]:
+        init_kwargs['enabled'] = True
+
     return cls(**init_kwargs)
 
 
@@ -136,6 +140,7 @@ class Filter:
     ping: bool
     isk_value: int
     items: str
+    enabled: bool
 
 
 @dataclass

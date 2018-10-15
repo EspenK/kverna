@@ -26,6 +26,8 @@ from utils.file import load
 from utils.file import save
 from utils.command import args_to_kwargs
 from utils.command import args_to_list
+from utils.command import esi_ids_to_lists
+from utils.command import esi_names_to_lists
 from . import config
 from . import session
 
@@ -109,26 +111,38 @@ class IntelCog:
     async def _list(self, ctx):
         pass
 
+    @_list.command(name='list', aliases=['l', 's', 'show'])
+    async def list_list(self, ctx, name: str = None):
+        """List all list names, or items in a specific list.
+
+        :param name: Name of the list.
+        """
+        guild: Guild = discord.utils.find(lambda g: g.id == ctx.guild.id, config.guilds)
+
+        if not name:
+            lists = [key for key in guild.lists.keys()]
+            await ctx.send(f'Lists: {lists}')
+            return
+
+        if guild.lists.get(name):
+            response = await esi_names(guild.lists.get(name))
+            ids, names = await esi_names_to_lists(list(response))
+            await ctx.send(f'Items in list {name}: {names}')
+        else:
+            await ctx.send(f'List {name} was not found.')
+
     @_list.command(name='add', aliases=['edit', 'update', 'u', 'a', 'e'])
     async def list_add(self, ctx, name: str, *args):
-        names = await args_to_list(*args)
-        response = await esi_ids(names)
-        categories = ['agents', 'alliances', 'characters', 'constellations',
-                      'corporations', 'factions', 'inventory_types', 'regions',
-                      'stations', 'systems']
-        ids = []
-        response_names = []
-        for category in categories:
-            if response.get(category):
-                for element in response.get(category):
-                    ids.append(element.get('id'))
-                    response_names.append(element.get('name'))
+        args = await args_to_list(*args)
+        response = await esi_ids(args)
+        ids, names = await esi_ids_to_lists(response)
         guild: Guild = discord.utils.find(lambda g: g.id == ctx.guild.id, config.guilds)
         config.guilds.remove(guild)
         guild.lists[name] = ids
         config.guilds.append(guild)
+        await save(config)
 
-        await ctx.send(f'List {name} added {response_names}')
+        await ctx.send(f'List {name} added {names}')
 
 
 def setup(bot: commands.Bot):

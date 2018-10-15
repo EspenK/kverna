@@ -133,12 +133,25 @@ class IntelCog:
 
     @_list.command(name='add', aliases=['edit', 'update', 'u', 'a', 'e'])
     async def list_add(self, ctx, name: str, *args):
+        """Add or update a list.
+
+        All items (args) must be separated with spaces. Names with spaces need to be in quotes (").
+
+        :param name: Name of the list.
+        :param args: Items to add to the list.
+        """
         args = await args_to_list(*args)
         response = await esi_ids(args)
         ids, names = await esi_ids_to_lists(response)
         guild: Guild = discord.utils.find(lambda g: g.id == ctx.guild.id, config.guilds)
+
+        if guild.lists.get(name):
+            new_list = list(set(guild.lists.get(name)).union(ids))
+        else:
+            new_list = ids
+
         config.guilds.remove(guild)
-        guild.lists[name] = ids
+        guild.lists[name] = new_list
         config.guilds.append(guild)
         await save(config)
 

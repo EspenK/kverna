@@ -32,3 +32,57 @@ async def args_to_list(*args) -> list:
     forbidden_characters = '[(){},\'"]'
     args = [re.sub(forbidden_characters, '', arg) for arg in args]
     return list(args)
+
+
+@timeit
+@logger
+async def esi_ids_to_lists(response: dict) -> tuple:
+    """Take the esi_ids response and make a ids list and a names list and return them as a tuple.
+
+    :param response: The esi_ids response.
+    :return: A tuple with two lists, ids and names.
+    """
+    categories = ['agents',
+                  'alliances',
+                  'characters',
+                  'constellations',
+                  'corporations',
+                  'factions',
+                  'inventory_types',
+                  'regions',
+                  'stations',
+                  'systems']
+    ids = []
+    names = []
+    for category in categories:
+        if response.get(category):
+            for element in response.get(category):
+                ids.append(element.get('id'))
+                names.append(element.get('name'))
+
+    return ids, names
+
+
+@timeit
+@logger
+async def esi_names_to_lists(response: list) -> tuple:
+    """Take the esi_names response and make a ids list and a names list and return them as a tuple.
+
+    :param response: The esi_names response.
+    :return: A tuple with two lists, ids and names.
+    """
+    categories = ['alliance',
+                  'character',
+                  'constellation',
+                  'corporation',
+                  'inventory_type',
+                  'region',
+                  'solar_system',
+                  'station']
+    ids = []
+    names = []
+    for element in response:
+        ids.append(element.get('id'))
+        names.append(element.get('name'))
+
+    return ids, names

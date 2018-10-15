@@ -56,27 +56,29 @@ class IntelCog:
         await ctx.send(msg)
 
     @filt.command(name='add', aliases=['edit', 'update', 'u', 'a', 'e'])
-    async def filt_add(self, ctx, *args):
+    async def filt_add(self, ctx, name: str, *args):
         """Add or update a filter.
 
-        A filter needs a name.
         All values are assigned by writing key=value. To see all possible keys use the filter list command.
+        :param name: The name of the filer.
         """
         kwargs = await args_to_kwargs(*args)
-        new_filter = None
-        if kwargs.get('name') is None:
-            await ctx.send('A filter must have a name.')
-            return
+        kwargs['name'] = name
 
         guild: Guild = discord.utils.find(lambda g: g.id == ctx.guild.id, config.guilds)
         filt: Filter = discord.utils.find(lambda f: f.name == kwargs.get('name'), guild.filters)
 
-        if filt is not None:
+        valid_lists = [guild.lists.get(kwargs.get(element)) for element in ['what', 'where', 'who', 'who_ignore', 'items'] if kwargs.get(element)]
+        if None in valid_lists:
+            await ctx.send(f'Failed. Make sure the lists already exists.')
+            return
+
+        if filt:
             new_filter_dict = {**asdict(filt), **kwargs}
             new_filter = from_dict(cls=Filter, dictionary=new_filter_dict)
             guild.filters.remove(filt)
 
-        if new_filter is None:
+        else:
             new_filter = from_dict(cls=Filter, dictionary=kwargs)
 
         config.guilds.remove(guild)
@@ -86,10 +88,10 @@ class IntelCog:
         await ctx.send(f'{new_filter}')
 
     @filt.command(name='remove', aliases=['delete', 'del', 'r'])
-    async def filt_remove(self, ctx, name):
+    async def filt_remove(self, ctx, name: str):
         """Remove a filter.
 
-        :param name: The name of the filer to remove.
+        :param name: The name of the filer.
         """
         guild: Guild = discord.utils.find(lambda g: g.id == ctx.guild.id, config.guilds)
         filt: Filter = discord.utils.find(lambda f: f.name == name, guild.filters)

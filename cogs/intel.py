@@ -74,8 +74,9 @@ async def process_killmail(zkb: Zkb, killmail: Killmail, bot: commands.Bot):
         if guild.reported_killmail_id.get(killmail.killmail_id) is not None:
             return
         for filt in guild.filters:
-            asyncio.create_task(process_filter(zkb=zkb, killmail=killmail, guild=guild, filt=filt, bot=bot))
-            await asyncio.sleep(0.0001)
+            if filt.enabled:
+                asyncio.create_task(process_filter(zkb=zkb, killmail=killmail, guild=guild, filt=filt, bot=bot))
+                await asyncio.sleep(0.0001)
 
 
 @timeit

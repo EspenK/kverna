@@ -144,6 +144,23 @@ class IntelCog:
 
         await ctx.send(f'List {name} added {names}')
 
+    @_list.command(name='remove', aliases=['delete', 'del', 'r'])
+    async def list_remove(self, ctx, name: str):
+        """Remove a list.
+
+        :param name: Name of the list.
+        """
+        guild: Guild = discord.utils.find(lambda g: g.id == ctx.guild.id, config.guilds)
+        if guild.lists.get(name):
+            config.guilds.remove(guild)
+            guild.lists.pop(name)
+            config.guilds.append(guild)
+            await save(config)
+
+            await ctx.send(f'List {name} removed.')
+        else:
+            await ctx.send(f'List {name} was not found.')
+
 
 def setup(bot: commands.Bot):
     bot.add_cog(IntelCog(bot))

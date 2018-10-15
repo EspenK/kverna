@@ -85,37 +85,39 @@ async def process_filter(zkb: Zkb, killmail: Killmail, guild: Guild, filt: Filte
     if killmail.killmail_id in guild.reported_killmail_id:
         return
 
-    matching = []
+    coros = []
     await asyncio.sleep(0.0001)
 
     if filt.ping is not None:
         ping = await is_ping(filt)
 
-    if filt.where is not None:
-        matching.append(await is_where(killmail=killmail, guild=guild, filt=filt))
+    if filt.where:
+        coros.append(is_where(killmail=killmail, guild=guild, filt=filt))
 
-    if filt.isk_value is not None:
-        matching.append(await is_expensive(zkb=zkb, filt=filt))
+    if filt.isk_value:
+        coros.append(is_expensive(zkb=zkb, filt=filt))
 
-    if filt.range is not None:
-        matching.append(await is_in_range(killmail=killmail, guild=guild, filt=filt))
+    if filt.range:
+        coros.append(is_in_range(killmail=killmail, guild=guild, filt=filt))
 
     if filt.action == 'use':
-        if filt.what is not None:
-            matching.append(await is_what_attacker(killmail=killmail, guild=guild, filt=filt))
+        if filt.what:
+            coros.append(is_what_attacker(killmail=killmail, guild=guild, filt=filt))
 
         if filt.who:
-            matching.append(await is_what_attacker(killmail=killmail, guild=guild, filt=filt))
+            coros.append(is_who_attacker(killmail=killmail, guild=guild, filt=filt))
 
     elif filt.action == 'kill':
-        if filt.what is not None:
-            matching.append(await is_what_victim(killmail=killmail, guild=guild, filt=filt))
+        if filt.what:
+            coros.append(is_what_victim(killmail=killmail, guild=guild, filt=filt))
 
         if filt.who:
-            matching.append(await is_who_victim(killmail=killmail, guild=guild, filt=filt))
+            coros.append(is_who_victim(killmail=killmail, guild=guild, filt=filt))
 
     else:
         log.error(f'{guild.id} {filt.name} missing action')
+
+    matching = await asyncio.gather(*coros)
 
     # TODO: Update the message with embeds and more info
     if False not in matching:

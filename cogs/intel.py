@@ -100,6 +100,9 @@ async def process_filter(zkb: Zkb, killmail: Killmail, guild: Guild, filt: Filte
     if filt.range:
         coros.append(is_in_range(killmail=killmail, guild=guild, filt=filt))
 
+    if filt.items:
+        coros.append(has_items(killmail=killmail, guild=guild, filt=filt))
+
     if filt.action == 'use':
         if filt.what:
             coros.append(is_what_attacker(killmail=killmail, guild=guild, filt=filt))

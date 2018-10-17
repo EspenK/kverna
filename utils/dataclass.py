@@ -25,7 +25,7 @@ def from_dict(cls: dataclass, dictionary: dict):
                 if field_value.lower() == 'false' or field_value == 0:
                     field_value = False
                 elif field_value.lower() == 'true' or field_value == 1:
-                    field_value = False
+                    field_value = True
 
         init_kwargs[_field.name] = field_value
 

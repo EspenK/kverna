@@ -94,7 +94,7 @@ async def process_filter(zkb: Zkb, killmail: Killmail, guild: Guild, filt: Filte
     if filt.isk_value:
         coros.append(is_expensive(zkb=zkb, filt=filt))
 
-    if filt.range:
+    if filt.range and guild.staging:
         coros.append(is_in_range(killmail=killmail, guild=guild, filt=filt))
 
     if filt.items:
@@ -187,7 +187,7 @@ async def is_in_range(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
     :return: True if the solar system is in range of the staging system.
     """
     params = {'datasource': 'tranquility', 'language': 'en-us'}
-    staging_system = await fetch(url=f'https://esi.evetech.net/latest/universe/systems/{guild.staging.get("id")}/',
+    staging_system = await fetch(url=f'https://esi.evetech.net/latest/universe/systems/{guild.staging}/',
                                  params=params)
     kill_system = await fetch(url=f'https://esi.evetech.net/latest/universe/systems/{killmail.solar_system_id}/',
                               params=params)

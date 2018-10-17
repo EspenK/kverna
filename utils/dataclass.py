@@ -117,7 +117,7 @@ class Config:
 class Guild:
     id: int
     channel: int
-    staging: dict
+    staging: int
     lists: dict
     filters: list
     reported_killmail_id: dict

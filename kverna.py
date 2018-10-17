@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import configparser
 import logging.config
+import logging.handlers
 from cogs import intel
 
 bot_config = configparser.ConfigParser()

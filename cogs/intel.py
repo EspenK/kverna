@@ -124,7 +124,7 @@ async def process_filter(zkb: Zkb, killmail: Killmail, guild: Guild, filt: Filte
         if killmail.killmail_id not in guild.reported_killmail_id:
             await add_reported_killmail_id(killmail=killmail, guild=guild)
             channel = bot.get_channel(guild.channel)
-            if is_ping:
+            if is_ping(filt):
                 await channel.send(
                     f'@here '
                     f'https://zkillboard.com/kill/{killmail.killmail_id} '

@@ -172,7 +172,10 @@ class IntelCog:
         if guild.lists.get(name):
             response = await esi_names(guild.lists.get(name))
             ids, names = await esi_names_to_lists(list(response))
-            await ctx.send(f'Items in list {name}: {names}')
+            if len(str(names)) > 1800:
+                await ctx.send(f'List is too big to be sent as one message. Please make several lists instead.')
+            else:
+                await ctx.send(f'Items in list {name}: {names}')
         else:
             await ctx.send(f'List {name} was not found.')
 
@@ -200,7 +203,10 @@ class IntelCog:
         config.guilds.append(guild)
         await save(config)
 
-        await ctx.send(f'List {name} added {names}')
+        if len(str(names)) > 1800:
+            await ctx.send(f'List is too big to be sent as one message. Please make several lists instead.')
+        else:
+            await ctx.send(f'List {name} added {names}')
 
     @_list.command(name='remove', aliases=['delete', 'del', 'r'])
     async def list_remove(self, ctx, name: str):

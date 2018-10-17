@@ -179,6 +179,26 @@ class IntelCog:
         else:
             await ctx.send(f'List {name} was not found.')
 
+    async def region_to_systems(self, args) -> tuple:
+        """Takes arguments from a "!list add region" command and returns ids and names of all systems in the regions.
+
+        :param args: Regions to get the systems from.
+        :return: A tuple with list of ids and list of names for all systems in the regions.
+        """
+        args.pop(0)
+        systems = []
+        for region in args:
+            search_response = await esi_search(categories='region', search=region)
+            region_response = await esi_regions(search_response[0])
+            for constellation in region_response.get('constellations'):
+                constellation_response = await esi_constellations(constellation)
+                systems += constellation_response.get('systems')
+
+        response = await esi_names(systems)
+        ids, names = await esi_names_to_lists(list(response))
+
+        return ids, names
+
     @_list.command(name='add', aliases=['edit', 'update', 'u', 'a', 'e'])
     async def list_add(self, ctx, name: str, *args):
         """Add or update a list.
@@ -189,8 +209,13 @@ class IntelCog:
         :param args: Items to add to the list.
         """
         args = await args_to_list(*args)
-        response = await esi_ids(args)
-        ids, names = await esi_ids_to_lists(response)
+
+        if args[0] in ['region', 'regions']:
+            ids, names = await self.region_to_systems(args)
+        else:
+            response = await esi_ids(args)
+            ids, names = await esi_ids_to_lists(response)
+
         guild: Guild = discord.utils.find(lambda g: g.id == ctx.guild.id, config.guilds)
 
         if guild.lists.get(name):

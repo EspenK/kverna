@@ -124,7 +124,7 @@ async def process_filter(zkb: Zkb, killmail: Killmail, guild: Guild, filt: Filte
         if killmail.killmail_id not in guild.reported_killmail_id:
             await add_reported_killmail_id(killmail=killmail, guild=guild)
             channel = bot.get_channel(guild.channel)
-            if is_ping(filt):
+            if filt.ping:
                 await channel.send(
                     f'@here '
                     f'https://zkillboard.com/kill/{killmail.killmail_id} '
@@ -149,17 +149,6 @@ async def add_reported_killmail_id(killmail: Killmail, guild: Guild):
     guild.reported_killmail_id[killmail.killmail_id] = time.strftime(datetime_format)
     config.guilds.append(guild)
     await save(config)
-
-
-@timeit
-@logger
-async def is_ping(filt: Filter) -> bool:
-    """Check if the kill should be pinged (@here)
-
-    :param filt: The filer.
-    :return: True if the kill should be pinged (@here).
-    """
-    return filt.ping
 
 
 @timeit

@@ -19,12 +19,17 @@ class IntelCog:
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    async def on_guild_join(self, guild):
-        kwargs = {'id': guild.id}
-        new_guild = from_dict(cls=Guild, dictionary=kwargs)
-        config.guilds.append(new_guild)
-        await save(config)
-        log.info(f'Joined new guild {guild.name}.')
+    async def on_guild_join(self, guild: discord.Guild):
+        if not discord.utils.find(lambda g: g.id == guild.id, config.guilds):
+            kwargs = {'id': guild.id,
+                      'lists': {},
+                      'filters': []}
+            new_guild: Guild = from_dict(cls=Guild, dictionary=kwargs)
+            config.guilds.append(new_guild)
+            await save(config)
+            log.info(f'Joined new guild {guild.name}.')
+        else:
+            log.info(f'Rejoined guild {guild.name}.')
 
     @commands.command(name='setchannel', aliases=['set_channel', 'sc'])
     async def set_channel(self, ctx, channel: discord.TextChannel = None):

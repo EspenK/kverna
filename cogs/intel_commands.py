@@ -158,7 +158,8 @@ class IntelCog:
             if len(str(names)) > 1800:
                 await ctx.send(f'List is too big to be sent as one message. Please make several lists instead.')
             else:
-                await ctx.send(f'Items in list {name}: {names}')
+                names_str = str(names).replace('\'', '"').replace(',', '')
+                await ctx.send(f'Items in list {name}: {names_str}')
         else:
             await ctx.send(f'List {name} was not found.')
 
@@ -214,7 +215,8 @@ class IntelCog:
         if len(str(names)) > 1800:
             await ctx.send(f'List is too big to be sent as one message. Please make several lists instead.')
         else:
-            await ctx.send(f'List {name} added {names}')
+            names_str = str(names).replace('\'', '"').replace(',', '')
+            await ctx.send(f'List {name} added {names_str}')
 
     @_list.command(name='remove', aliases=['delete', 'del', 'r'])
     async def list_remove(self, ctx, name: str):

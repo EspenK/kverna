@@ -60,7 +60,7 @@ class IntelCog:
         guild: Guild = discord.utils.find(lambda g: g.id == ctx.guild.id, config.guilds)
 
         if channel:
-            new_channel = channel
+            new_channel = channel.id
             log.debug(f'Guild {guild.id} sets channel {channel.name}, {channel.id}')
         else:
             new_channel = ctx.channel.id

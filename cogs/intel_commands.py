@@ -8,8 +8,6 @@ from utils.file import save
 from utils.command import (args_to_kwargs, args_to_list, esi_ids_to_lists, esi_names_to_lists)
 from . import config
 
-# TODO: Clean up import once commands are finished
-
 
 log = logging.getLogger('discord')
 
@@ -43,15 +41,18 @@ class IntelCog:
 
         if channel:
             new_channel = channel.id
+            new_channel_name = channel.name
             log.debug(f'Guild {guild.id} sets channel {channel.name}, {channel.id}')
         else:
             new_channel = ctx.channel.id
+            new_channel_name = ctx.channel.name
             log.debug(f'Guild {guild.id} sets channel {ctx.channel.name}, {ctx.channel.id}')
 
         config.guilds.remove(guild)
         guild.channel = new_channel
         config.guilds.append(guild)
         await save(config)
+        await ctx.send(f'{new_channel_name} set as channel.')
 
     @commands.command(name='setstaging', aliases=['set_staging'])
     async def set_staging(self, ctx, system: str):

@@ -28,6 +28,10 @@ def from_dict(cls: dataclass, dictionary: dict):
 
         init_kwargs[_field.name] = field_value
 
+    # ensure guilds have a dictionary in lists field
+    if cls is Guild and not init_kwargs.get('lists'):
+        init_kwargs['lists'] = {}
+
     # ensure filters have an action
     if cls is Filter and init_kwargs.get('action') not in ['kill', 'use']:
         init_kwargs['action'] = 'kill'

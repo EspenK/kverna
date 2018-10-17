@@ -71,6 +71,22 @@ class IntelCog:
         config.guilds.append(guild)
         await save(config)
 
+    @commands.command(name='setstaging', aliases=['set_staging'])
+    async def set_staging(self, ctx, system: str):
+        guild: Guild = discord.utils.find(lambda g: g.id == ctx.guild.id, config.guilds)
+
+        system_response = await esi_search(categories='solar_system', search=system)
+        if system_response is None:
+            await ctx.send(f'No result found, please be more specific.')
+        elif len(system_response) > 1:
+            await ctx.send(f'More than one result found, please be more specific.')
+        else:
+            config.guilds.remove(guild)
+            guild.staging = system_response[0]
+            config.guilds.append(guild)
+            await save(config)
+            await ctx.send(f'{system} set as staging.')
+
     @commands.group(name='filter', aliases=['f'])
     @commands.guild_only()
     async def filt(self, ctx):

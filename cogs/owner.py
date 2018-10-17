@@ -2,8 +2,7 @@ import discord
 from discord.ext import commands
 import asyncio
 
-from utils.decorator import timeit
-from utils.decorator import logger
+from utils.decorator import (timeit, logger)
 
 
 class OwnerCog:

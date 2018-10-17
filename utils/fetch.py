@@ -1,7 +1,5 @@
 import logging
-import aiohttp
-from utils.decorator import logger
-from utils.decorator import timeit
+from utils.decorator import (logger, timeit)
 from cogs import session
 
 

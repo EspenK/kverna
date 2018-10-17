@@ -2,10 +2,8 @@ import json
 import aiofiles
 from dataclasses import asdict
 
-from utils.dataclass import Config
-from utils.dataclass import from_dict
-from utils.decorator import logger
-from utils.decorator import timeit
+from utils.dataclass import (Config, from_dict)
+from utils.decorator import (logger, timeit)
 
 
 CONFIG_FILE = 'config/config.json'

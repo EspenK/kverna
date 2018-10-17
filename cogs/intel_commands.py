@@ -42,6 +42,35 @@ class IntelCog:
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+    async def on_guild_join(self, guild):
+        kwargs = {'id': guild.id}
+        new_guild = from_dict(cls=Guild, dictionary=kwargs)
+        config.guilds.append(new_guild)
+        await save(config)
+        log.info(f'Joined new guild {guild.name}.')
+
+    @commands.command(name='setchannel', aliases=['set_channel', 'sc'])
+    async def set_channel(self, ctx, channel: discord.TextChannel = None):
+        """Set a channel that the bot will report kills to.
+
+        If no channel is provided, use the channel that the command was used in.
+
+        :param channel: The discord server to use.
+        """
+        guild: Guild = discord.utils.find(lambda g: g.id == ctx.guild.id, config.guilds)
+
+        if channel:
+            new_channel = channel
+            log.debug(f'Guild {guild.id} sets channel {channel.name}, {channel.id}')
+        else:
+            new_channel = ctx.channel.id
+            log.debug(f'Guild {guild.id} sets channel {ctx.channel.name}, {ctx.channel.id}')
+
+        config.guilds.remove(guild)
+        guild.channel = new_channel
+        config.guilds.append(guild)
+        await save(config)
+
     @commands.group(name='filter', aliases=['f'])
     @commands.guild_only()
     async def filt(self, ctx):

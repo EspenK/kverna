@@ -88,9 +88,6 @@ async def process_filter(zkb: Zkb, killmail: Killmail, guild: Guild, filt: Filte
     coros = []
     await asyncio.sleep(0.0001)
 
-    if filt.ping is not None:
-        ping = await is_ping(filt)
-
     if filt.where:
         coros.append(is_where(killmail=killmail, guild=guild, filt=filt))
 
@@ -127,9 +124,15 @@ async def process_filter(zkb: Zkb, killmail: Killmail, guild: Guild, filt: Filte
         if killmail.killmail_id not in guild.reported_killmail_id:
             await add_reported_killmail_id(killmail=killmail, guild=guild)
             channel = bot.get_channel(guild.channel)
-            await channel.send(
-                f'https://zkillboard.com/kill/{killmail.killmail_id}/ '
-                f'matched {filt.name}')
+            if is_ping:
+                await channel.send(
+                    f'@here '
+                    f'https://zkillboard.com/kill/{killmail.killmail_id} '
+                    f'matched {filt.name}')
+            else:
+                await channel.send(
+                    f'https://zkillboard.com/kill/{killmail.killmail_id}/ '
+                    f'matched {filt.name}')
 
 
 @timeit
@@ -156,7 +159,7 @@ async def is_ping(filt: Filter) -> bool:
     :param filt: The filer.
     :return: True if the kill should be pinged (@here).
     """
-    return filt.ping == 1
+    return filt.ping
 
 
 @timeit

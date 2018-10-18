@@ -15,10 +15,11 @@ def from_dict(cls: dataclass, dictionary: dict):
         if type(field_value) is str:
             if field_value.lower() in ['none', 'null']:
                 field_value = None
-        if _field.type is dict:
-            field_value = {}
-        elif _field.type is list:
-            field_value = []
+        if field_value is None:
+            if _field.type is dict:
+                field_value = {}
+            elif _field.type is list:
+                field_value = []
         if field_value is not None and _field.type not in [dict, list]:
             if _field.type is int:
                 field_value = int(field_value)

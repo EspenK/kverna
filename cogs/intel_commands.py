@@ -18,6 +18,9 @@ class IntelCog:
         self.bot = bot
 
     async def on_guild_join(self, guild: discord.Guild):
+        await self.add_guild(guild)
+
+    async def add_guild(self, guild: discord.Guild):
         if not discord.utils.find(lambda g: g.id == guild.id, config.guilds):
             kwargs = {'id': guild.id,
                       'lists': {},
@@ -28,6 +31,10 @@ class IntelCog:
             log.info(f'Joined new guild {guild.name}.')
         else:
             log.info(f'Rejoined guild {guild.name}.')
+
+    @commands.command(name='addserver', aliases=['add_server'])
+    async def add_server_command(self, ctx):
+        await self.add_guild(ctx.guild)
 
     @commands.command(name='setchannel', aliases=['set_channel', 'sc'])
     async def set_channel(self, ctx, channel: discord.TextChannel = None):

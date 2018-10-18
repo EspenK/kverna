@@ -15,7 +15,11 @@ def from_dict(cls: dataclass, dictionary: dict):
         if type(field_value) is str:
             if field_value.lower() in ['none', 'null']:
                 field_value = None
-        if field_value is not None:
+        if _field.type is dict:
+            field_value = {}
+        elif _field.type is list:
+            field_value = []
+        if field_value is not None and _field.type not in [dict, list]:
             if _field.type is int:
                 field_value = int(field_value)
             elif _field.type is float:
@@ -27,10 +31,6 @@ def from_dict(cls: dataclass, dictionary: dict):
                     field_value = True
 
         init_kwargs[_field.name] = field_value
-
-    # ensure guilds have a dictionary in lists field
-    if cls is Guild and not init_kwargs.get('lists'):
-        init_kwargs['lists'] = {}
 
     # ensure filters have an action
     if cls is Filter and init_kwargs.get('action') not in ['kill', 'use']:

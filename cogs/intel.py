@@ -23,7 +23,7 @@ async def listen(bot: commands.Bot):
     """
     await bot.wait_until_ready()
 
-    url = 'https://redisq.zkillboard.com/listen.php?queueID=kverna'
+    url = 'https://redisq.zkillboard.com/listen.php'
 
     while True:  # TODO: Check connection status
         log.debug('listening')

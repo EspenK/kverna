@@ -272,7 +272,7 @@ async def check_security_status(killmail: Killmail, filt: Filter) -> bool:
     :return: True if the security status is between the high and low limit.
     """
     solar_system = await esi_systems(killmail.solar_system_id)
-    security_status = solar_system.get('security_status')
+    security_status = float(solar_system.get('security_status'))
     matching = []
     if filt.lowest_security:
         if security_status > filt.lowest_security:

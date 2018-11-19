@@ -87,8 +87,11 @@ async def process_filter(zkb: Zkb, killmail: Killmail, guild: Guild, filt: Filte
     if filt.items:
         coros.append(has_items(killmail=killmail, guild=guild, filt=filt))
 
-    if filt.lowest_security or filt.highest_security:
-        coros.append(check_security_status(killmail=killmail, filt=filt))
+    if filt.lowest_security is not None:
+        coros.append(security_status_low(killmail=killmail, filt=filt))
+
+    if filt.highest_security is not None:
+        coros.append(security_status_high(killmail=killmail, filt=filt))
 
     if filt.action == 'use':
         if filt.what:
@@ -264,25 +267,27 @@ async def has_items(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
 
 @timeit
 @logger
-async def check_security_status(killmail: Killmail, filt: Filter) -> bool:
-    """Check if the security status is between the highest and lowest allowed security status.
+async def security_status_low(killmail: Killmail, filt: Filter) -> bool:
+    """Check if the solar systems security status is over the filters low limit.
 
     :param killmail: The killmail.
     :param filt: The filter.
-    :return: True if the security status is between the high and low limit.
+    :return: True if the solar systems security status is over the filters low limit.
     """
     solar_system = await esi_systems(killmail.solar_system_id)
     security_status = float(solar_system.get('security_status'))
-    matching = []
-    if filt.lowest_security:
-        if security_status > filt.lowest_security:
-            matching.append(True)
-        else:
-            matching.append(False)
+    return security_status >= filt.lowest_security
 
-    if filt.highest_security:
-        if security_status < filt.highest_security:
-            matching.append(True)
-        else:
-            matching.append(False)
-    return False not in matching
+
+@timeit
+@logger
+async def security_status_high(killmail: Killmail, filt: Filter) -> bool:
+    """Check if the solar systems security status is under the filters high limit.
+
+    :param killmail: The killmail.
+    :param filt: The filter.
+    :return: True if the solar systems security status is under the filters high limit.
+    """
+    solar_system = await esi_systems(killmail.solar_system_id)
+    security_status = float(solar_system.get('security_status'))
+    return security_status <= filt.highest_security

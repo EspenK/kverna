@@ -4,7 +4,7 @@ import asyncio
 import datetime
 
 from utils.decorator import (logger, timeit)
-from utils.fetch import fetch
+from utils.fetch import (fetch, esi_systems)
 from utils.dataclass import (from_dict, Killmail, Zkb, Guild, Filter, Position)
 from utils.file import save
 from . import config
@@ -86,6 +86,9 @@ async def process_filter(zkb: Zkb, killmail: Killmail, guild: Guild, filt: Filte
 
     if filt.items:
         coros.append(has_items(killmail=killmail, guild=guild, filt=filt))
+
+    if filt.lowest_security or filt.highest_security:
+        coros.append(check_security_status(killmail=killmail, filt=filt))
 
     if filt.action == 'use':
         if filt.what:
@@ -173,11 +176,9 @@ async def is_in_range(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
     :param filt: The filter.
     :return: True if the solar system is in range of the staging system.
     """
-    params = {'datasource': 'tranquility', 'language': 'en-us'}
-    staging_system = await fetch(url=f'https://esi.evetech.net/latest/universe/systems/{guild.staging}/',
-                                 params=params)
-    kill_system = await fetch(url=f'https://esi.evetech.net/latest/universe/systems/{killmail.solar_system_id}/',
-                              params=params)
+    staging_system = await esi_systems(guild.staging)
+    kill_system = await esi_systems(killmail.solar_system_id)
+
     staging_position = from_dict(cls=Position, dictionary=staging_system.get('position'))
     kill_position = from_dict(cls=Position, dictionary=kill_system.get('position'))
     distance = staging_position.distance_in_light_years(kill_position)
@@ -259,3 +260,29 @@ async def has_items(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
     """
     matching = [item.item_type_id in guild.lists.get(filt.items) for item in killmail.victim.items]
     return True in matching
+
+
+@timeit
+@logger
+async def check_security_status(killmail: Killmail, filt: Filter) -> bool:
+    """Check if the security status is between the highest and lowest allowed security status.
+
+    :param killmail: The killmail.
+    :param filt: The filter.
+    :return: True if the security status is between the high and low limit.
+    """
+    solar_system = await esi_systems(killmail.solar_system_id)
+    security_status = float(solar_system.get('security_status'))
+    matching = []
+    if filt.lowest_security:
+        if security_status > filt.lowest_security:
+            matching.append(True)
+        else:
+            matching.append(False)
+
+    if filt.highest_security:
+        if security_status < filt.highest_security:
+            matching.append(True)
+        else:
+            matching.append(False)
+    return False not in matching

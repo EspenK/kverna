@@ -144,6 +144,8 @@ class Filter:
     ping: bool
     isk_value: int
     items: str
+    lowest_security: float
+    highest_security: float
     enabled: bool
 
 

@@ -252,7 +252,7 @@ async def is_who_ignore_victim(killmail: Killmail, guild: Guild, filt: Filter) -
            killmail.victim.corporation_id,
            killmail.victim.character_id,
            killmail.victim.faction_id}
-    return bool(ids.intersection(guild.lists.get(filt.who_ignore)))
+    return not bool(ids.intersection(guild.lists.get(filt.who_ignore)))
 
 
 @timeit
@@ -292,7 +292,7 @@ async def is_who_ignore_attacker(killmail: Killmail, guild: Guild, filt: Filter)
             attacker.character_id,
             attacker.faction_id
         ])
-    return bool(ids.intersection(guild.lists.get(filt.who_ignore)))
+    return not bool(ids.intersection(guild.lists.get(filt.who_ignore)))
 
 
 @timeit

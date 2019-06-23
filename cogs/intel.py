@@ -100,12 +100,18 @@ async def process_filter(zkb: Zkb, killmail: Killmail, guild: Guild, filt: Filte
         if filt.who:
             coros.append(is_who_attacker(killmail=killmail, guild=guild, filt=filt))
 
+        if filt.who_ignore:
+            coros.append(is_who_ignore_attacker(killmail=killmail, guild=guild, filt=filt))
+
     elif filt.action == 'kill':
         if filt.what:
             coros.append(is_what_victim(killmail=killmail, guild=guild, filt=filt))
 
         if filt.who:
             coros.append(is_who_victim(killmail=killmail, guild=guild, filt=filt))
+
+        if filt.who_ignore:
+            coros.append(is_who_ignore_victim(killmail=killmail, guild=guild, filt=filt))
 
     else:
         log.error(f'{guild.id} {filt.name} missing action')
@@ -234,6 +240,23 @@ async def is_who_victim(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
 
 @timeit
 @logger
+async def is_who_ignore_victim(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
+    """Check if the victim is in the filters 'who_ignore' list.
+
+    :param killmail: The killmail.
+    :param guild: The guild.
+    :param filt: The filter.
+    :return: True if the victim is in the filters 'who_ignore' list.
+    """
+    ids = {killmail.victim.alliance_id,
+           killmail.victim.corporation_id,
+           killmail.victim.character_id,
+           killmail.victim.faction_id}
+    return bool(ids.intersection(guild.lists.get(filt.who_ignore)))
+
+
+@timeit
+@logger
 async def is_who_attacker(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
     """Check if an attacker is in the filters 'who' list.
 
@@ -249,6 +272,27 @@ async def is_who_attacker(killmail: Killmail, guild: Guild, filt: Filter) -> boo
                     attacker.character_id,
                     attacker.faction_id])
     return bool(ids.intersection(guild.lists.get(filt.who)))
+
+
+@timeit
+@logger
+async def is_who_ignore_attacker(killmail: Killmail, guild: Guild, filt: Filter) -> bool:
+    """Check if an attacker is in the 'who_ignore' list.
+
+    :param killmail: The killmail.
+    :param guild: The guild.
+    :param filt: The filter.
+    :return: True if an attacker is in the filters 'who' list.
+    """
+    ids = set()
+    for attacker in killmail.attackers:
+        ids.update([
+            attacker.alliance_id,
+            attacker.corporation_id,
+            attacker.character_id,
+            attacker.faction_id
+        ])
+    return bool(ids.intersection(guild.lists.get(filt.who_ignore)))
 
 
 @timeit

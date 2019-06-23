@@ -282,7 +282,7 @@ async def is_who_ignore_attacker(killmail: Killmail, guild: Guild, filt: Filter)
     :param killmail: The killmail.
     :param guild: The guild.
     :param filt: The filter.
-    :return: True if an attacker is in the filters 'who' list.
+    :return: True if an attacker is in the filters 'who_ignore' list.
     """
     ids = set()
     for attacker in killmail.attackers:
